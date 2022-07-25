@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<body onload="refreshLbl()">
+		<div><strong>Hourly Summary:</strong></div>
+		<div id="lblTime">Loading...</div>
+		<div id="lblBeat">Loading...</div>
+		<hr>
+		<div><strong>Crime Factors Due To:</strong></div>
+		<div id="lblTemp">Loading...</div>
+		<div id="lblConditions">Loading...</div>
+		<div id="lblTimeofDay">Loading...</div>
+		<script language="javascript" type="text/javascript">
+			
+			const params = new URLSearchParams(window.location.search);
+			beat_crimes = JSON.parse(params.get('crime'));
+			avg_crime = getAvg(beat_crimes);
+			beat_temp = JSON.parse(params.get('temp'));
+			beat_conditions = JSON.parse(params.get('conditions'));
+			window.onstorage = refreshLbl;
+
+			function refreshLbl(){
+				
+				current_hrblock = JSON.parse(window.localStorage.getItem('current_slider_value'));
+				current_time = current_hrblock % 24;
+				if (current_time <= 12){
+					if (current_time == 12){
+						current_ampm = "PM";
+					}else{
+						current_ampm = "AM";
+						if (current_time == 0){
+							current_time = 12;
+						}
+					}
+
+				}else{
+					current_time = current_hrblock % 12;
+					current_ampm = "PM";
+				}
+
+
+				document.getElementById("lblTime").innerHTML = "<em>Day Time: <strong>" + current_time + ":00 " + current_ampm + "</strong></em>"; 
+				document.getElementById("lblBeat").innerHTML = "<em>Potential for Crime: <strong>" + parseFloat(beat_crimes[current_hrblock]*100).toFixed(1) + "%</strong></em>"; 
+				document.getElementById("lblTemp").innerHTML = "<em>Weather Temp: <strong>" + signNumber(parseFloat(beat_temp[current_hrblock]*100).toFixed(2)) + "%</strong></em>";
+				document.getElementById("lblConditions").innerHTML = "<em>Weather Conditions: <strong>" + signNumber(parseFloat(beat_conditions[current_hrblock]*100).toFixed(2)) + "%</strong></em>";
+				document.getElementById("lblTimeofDay").innerHTML = "<em>Time of Day: <strong>" + signNumber(parseFloat((beat_crimes[current_hrblock] - avg_crime)*100).toFixed(2)) + "%</strong></em>";
+			}
+
+			function signNumber(myNumber){
+    			if(myNumber > 0){
+        			return "+" + myNumber.toString();
+    			}else{
+        			return myNumber.toString();
+    			}
+			}
+		
+			function getAvg(crimes) {
+  				total = crimes.reduce((acc, c) => acc + c, 0);
+  				return total / crimes.length;
+			}
+		
+		</script>
+	</body>
+</html>

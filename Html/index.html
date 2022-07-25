@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+        <link rel="icon" href="searching-robot.png">
+        <title>Seattle Crime Forecasting using TensorFlow Neural Networks</title>
+        <meta name="description" content="This is a private research project using crime history data collected from Seattle Open Data and weather history / forecast data from Visual Crossing. This data is fed into a TensorFlow neural network to predict crime potential rates (where a police report is filed) for the next day in Seattle neighborhoods. Factors involved in making these predictions include: weather, time of year, time of week, time of day, specific neighborhood crime history, and recent crime activity rates. The predictions are updated every 12 hours.">
+        <meta name="keywords" content="Seattle Crime, Seattle Weather Forecast, Deep Learning, TensorFlow, Neural Networks, Python, Crime Data, Crime Forecast, Crime Predicting, Weather Forecast, Weather Data, Seattle Crime Map, Seattle Weather Map, Seattle Crime Data, Seattle Crime History">
+        <meta name="author" content="Seattle Crime Forecast">
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z07L68SCQH"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-Z07L68SCQH');
+        </script>
+          <link rel="stylesheet" href="jquery-ui-1.13.1.custom/jquery-ui.css">
+          <!--<link rel="stylesheet" href="/resources/demos/style.css">-->
+          <script src="jquery-ui-1.13.1.custom/external/jquery/jquery.js"></script>
+          <script src="jquery-ui-1.13.1.custom/jquery-ui.js"></script>
+
+          <script>
+          $(function() {
+            $( "#datepicker" ).datepicker({
+            showOn: "button",
+            buttonText: "Select Date",
+            dateFormat: "mm-dd-yy",
+            defaultDate: new Date(),
+            minDate: new Date(2022, 6-1, 27),
+            maxDate: date_future
+
+        });
+          });
+            function mmddyyyy(mydate) {
+              var mm = mydate.getMonth() + 1; // getMonth() is zero-based
+              var dd = mydate.getDate();
+
+              return [(mm>9 ? '' : '0') + mm,
+                      (dd>9 ? '' : '0') + dd, mydate.getFullYear()
+                     ].join('-');
+            }
+            function changeTimezone(date, ianatz) {
+
+              // suppose the date is 12:00 UTC
+              var invdate = new Date(date.toLocaleString('en-US', {
+                timeZone: ianatz
+              }));
+
+              // then invdate will be 07:00 in Toronto
+              // and the diff is 5 hours
+              var diff = date.getTime() - invdate.getTime();
+
+              // so 12:00 in Toronto is 17:00 UTC
+              return new Date(date.getTime() - diff); // needs to substract
+
+            }
+          </script>
+    </head>
+
+    <body>
+
+        <script language="javascript" type="text/javascript">
+
+            window.onresize = resizeElements;
+            window.onload = resizeElements;
+
+            function resizeElements() {
+                frameMap.style.width = window.innerWidth - 32 + 'px';
+                frameMap.style.height = window.innerHeight * 0.80 + 'px';
+
+                frameSummary.style.width = window.innerWidth - 32 + 'px';
+                frameSummary.style.height = frameSummary.contentWindow.document.documentElement.scrollHeight + 'px';
+
+            }
+
+
+        </script>
+        <p style="float:left;"><a href="https://twitter.com/CrimeForecast?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @CrimeForecast</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>
+        <p style="float:right;"><input type="text" readonly="readonly" id="datepicker" style="font-family: Garamond, serif; font-size : 15px;" ONCHANGE="loadDay();"></p><br>
+        <div align="center">
+        <h1 id="dayheader" style="background-color:#DBDBDB; font-family: Garamond, serif; font-weight: bold; font-size:36px;">Seattle Crime Forecast for Today</h1>
+        <form name="CrimeOptions" STYLE="font-size:25px; font-weight: bold;">Select Crime Type:
+        <SELECT ID= "CrimeSelect" NAME="options" STYLE="width: 450px; font-size:25px; font-family: Garamond, serif;" ONCHANGE="loadDay();">
+        <option value="TotalCrime">Total Predicted Crime</option>
+        <option value="PropertyCrime">Predicted Property Crime</option>
+        <option value="PersonCrime">Predicted Crimes Against People</option>
+        <option value="SocietyCrime">Predicted Crimes Against Society</option>
+        </SELECT>
+
+        </form>
+        <p></p>
+
+        <iframe id="frameMap" src='loading.gif' scrolling="no" frameborder="0" width="300" height="169" style="overflow:hidden; position:relative; background-image:url('loading.gif'); background-position:center; background-repeat:no-repeat;"></iframe>
+
+        <h1 style="background-color: #DBDBDB; font-family: Garamond, serif; font-weight: bold; font-size:36px;">Summary of Neural Network Findings:</h1>
+        <iframe id="frameSummary" scrolling="auto" frameborder="0" width="0" height="0" style="overflow:hidden; position: relative;"></iframe>
+
+        <script language="javascript" type="text/javascript">
+            const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+            const params = new URLSearchParams(window.location.search);
+
+            var date_today = new Date();
+            date_today = changeTimezone(date_today, "America/Los_Angeles");
+
+            var date_future = new Date(date_today.valueOf());
+            date_future.setDate(date_future.getDate() + 4);
+
+            if (params.has('time')){
+                current_hrblock = params.get('time');
+            }else{
+                var current_hrblock = date_today.getHours();
+
+                current_hrblock = current_hrblock + 1;
+                if (current_hrblock > 23){
+                   current_hrblock = 23;
+                }
+            }
+            window.localStorage.setItem('current_slider_value', current_hrblock);
+
+            if (params.has('zoom')){
+                window.localStorage.setItem('current_zoom_value', params.get('zoom'));
+            }else{
+                window.localStorage.setItem('current_zoom_value', 12);
+            }
+
+            if (params.has('lat') & params.has('lng')){
+                window.localStorage.setItem('current_center_value', JSON.stringify([params.get('lat'), params.get('lng')]));
+            }else{
+                window.localStorage.setItem('current_center_value', JSON.stringify([47.6062, -122.3321]));
+            }
+
+            if (params.has('crimetype')){
+                document.getElementById("CrimeSelect").options.selectedIndex = params.get('crimetype');
+            }else{
+                document.getElementById("CrimeSelect").options.selectedIndex = 0;
+            }
+
+            if (params.has('date')){
+                document.getElementById("datepicker").value = params.get('date');
+            }else{
+
+                document.getElementById("datepicker").value = mmddyyyy(date_today);
+            }
+
+            function loadDay(){
+
+                document.getElementById('frameMap').src = 'Archive/' + document.getElementById('CrimeSelect').options[document.getElementById('CrimeSelect').selectedIndex].value + '-' + document.getElementById('datepicker').value + '.html';
+
+                var date_selected = $( "#datepicker" ).datepicker( "getDate" );
+                var txt = "";
+                if (date_selected !== null) {
+
+                    if (date_selected.getDate() == date_today.getDate()){
+                        txt = "Today";
+                    } else if(date_selected.getDate() == date_today.getDate() + 1){
+                        txt = "Tomorrow";
+                    } else if(date_selected.getDate() == date_today.getDate() +-1){
+                        txt = "Yesterday";
+                    }else{
+                        txt = weekday[date_selected.getDay()];
+                    }
+
+                }else if(params.has('date')){
+                    txt = params.get('date');
+                }else{
+                    txt = "Today"
+                }
+                document.getElementById('dayheader').innerHTML = 'Seattle Crime Forecast ' + txt;
+                document.getElementById('frameSummary').src = 'Archive/Summary-' + document.getElementById('datepicker').value + '.html';
+
+            }
+
+
+            loadDay();
+
+        </script>
+        </div>
+        <h1 style="background-color:#DBDBDB; font-family: Garamond, serif; font-weight: bold; font-size:36px;" align="center">About</h1>
+        <p>This is a private research project using crime history data collected from <a href="https://data.seattle.gov/">Seattle Open Data<a/> and weather history / forecast data from <a href="https://www.visualcrossing.com/">Visual Crossing</a>. This data is fed into a <a href="https://www.tensorflow.org/">TensorFlow</a> neural network to predict potential crime rates (where a police report is filed) for the next day in Seattle neighborhoods. Factors involved in making these predictions include: weather, time of year, time of week, time of day, specific neighborhood crime history, and recent crime activity rates. The predictions are updated every 12 hours.</p>
+        </p>The crime prediction engine on this website was developed using the <a href="https://www.python.org/">Python programming language</a> and uses the following libraries:</p>
+        <ul>
+            <li>Raw Data Processing: <a href="https://numpy.org/">NumPy</a> and <a href="https://pandas.pydata.org/">Pandas</a></li>
+            <li>Deep Learning: <a href="https://keras.io/">TensorFlow - Keras</a> and <a href="https://scikit-learn.org/">SciKit-Learn</a></li>
+            <li>Geo and Mapping: <a href="https://geopandas.org/en/stable/">GeoPandas</a> and <a href="https://github.com/python-visualization/folium">Folium</a></li>
+            <li>Weather Data Provided by <a href="https://www.visualcrossing.com/">Visual Crossing</a></li>
+        </ul>
+        <a href="mailto:admin@seattlecrimeforecast.com">Creator contact email for questions and suggestions</a><br><br>
+        <a href="SeattleCrimeRSS.xml">Get daily Seattle crime prediction updates via the RSS feed  <img src="pic_rss.gif" width="36" height="14"></a><br><br>
+        <a href="https://twitter.com/CrimeForecast?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @CrimeForecast</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        <p>
+        Copyright 2022 by Seattle Crime Forecast
+        </p>
+        <p>Disclaimers:
+        <em><br>
+            Seattle Crime Forecast is a private research project and still being actively developed and debugged. It should not be used to make decisions with regards to personal safety or risk to property. Seattle Crime Forecast is not affilated with the City of Seattle or the Seattle Police Department.
+            <br><br>
+            The data made available here has been modified for use from its original source, which is the City of Seattle. Neither the City of Seattle nor the Office of the Chief Technology Officer (OCTO) makes any claims as to the completeness, timeliness, accuracy or content of any data contained in this application; makes any representation of any kind, including, but not limited to, warranty of the accuracy or fitness for a particular use; nor are any such warranties to be implied or inferred with respect to the information or data furnished herein. The data is subject to change as modifications and updates are complete. It is understood that the information contained in the web feed is being used at one's own risk.
+
+        </em>
+        </p>
+   </body>
+
+</html>

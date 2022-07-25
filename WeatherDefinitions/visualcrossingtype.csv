@@ -1,0 +1,44 @@
+IdIndex,TypeName,TypeDescription,TypeRanking,DayIcon,NightIcon
+1,type_1,Blowing Or Drifting Snow,,snow.svg,snow.svg
+2,type_2,Drizzle,,showers-day.svg,showers-night.svg
+3,type_3,Heavy Drizzle,,rain.svg,rain.svg
+4,type_4,Light Drizzle,,showers-day.svg,showers-night.svg
+5,type_5,Heavy Drizzle/Rain,,rain.svg,rain.svg
+6,type_6,Light Drizzle/Rain,,showers-day.svg,showers-night.svg
+7,type_7,Duststorm,,wind.svg,wind.svg
+8,type_8,Fog,2,fog.svg,fog.svg
+9,type_9,Freezing Drizzle/Freezing Rain,,sleet.svg,sleet.svg
+10,type_10,Heavy Freezing Drizzle/Freezing Rain,,rain-snow.svg,rain-snow.svg
+11,type_11,Light Freezing Drizzle/Freezing Rain,,rain-snow-showers-day.svg,rain-snow-showers-night.svg
+12,type_12,Freezing Fog,,hail.svg,hail.svg
+13,type_13,Heavy Freezing Rain,,sleet.svg,sleet.svg
+14,type_14,Light Freezing Rain,,hail.svg,hail.svg
+15,type_15,Funnel Cloud/Tornado,,wind.svg,wind.svg
+16,type_16,Hail Showers,,hail.svg,hail.svg
+17,type_17,Ice,,sleet.svg,sleet.svg
+18,type_18,Lightning Without Thunder,,thunder-showers-day.svg,thunder-showers-night.svg
+19,type_19,Mist,2,fog.svg,fog.svg
+20,type_20,Precipitation In Vicinity,3,showers-day.svg,showers-night.svg
+21,type_21,Rain,8,rain.svg,rain.svg
+22,type_22,Heavy Rain And Snow,,rain-snow.svg,rain-snow.svg
+23,type_23,Light Rain And Snow,,rain-snow-showers-day.svg,rain-snow-showers-night.svg
+24,type_24,Rain Showers,7,showers-day.svg,showers-night.svg
+25,type_25,Heavy Rain,10,rain.svg,rain.svg
+26,type_26,Light Rain,5,showers-day.svg,showers-night.svg
+27,type_27,Sky Coverage Decreasing,,partly-cloudy-day.svg,partly-cloudy-night.svg
+28,type_28,Sky Coverage Increasing,,cloudy.svg,cloudy.svg
+29,type_29,Sky Unchanged,,cloudy.svg,cloudy.svg
+30,type_30,Smoke Or Haze,,fog.svg,fog.svg
+31,type_31,Snow,,snow.svg,snow.svg
+32,type_32,Snow And Rain Showers,,rain-snow-showers-day.svg,rain-snow-showers-night.svg
+33,type_33,Snow Showers,,snow-showers-day.svg,snow-showers-night.svg
+34,type_34,Heavy Snow,,snow.svg,snow.svg
+35,type_35,Light Snow,,snow-showers-day.svg,snow-showers-night.svg
+36,type_36,Squalls,,wind.svg,wind.svg
+37,type_37,Thunderstorm,,thunder-rain.svg,thunder-rain.svg
+38,type_38,Thunderstorm Without Precipitation,,thunder.svg,thunder.svg
+39,type_39,Diamond Dust,,clear-day.svg,clear-night.svg
+40,type_40,Hail,,hail.svg,hail.svg
+41,type_41,Overcast,3,cloudy.svg,cloudy.svg
+42,type_42,Partially cloudy,2,partly-cloudy-day.svg,partly-cloudy-night.svg
+43,type_43,Clear,1,clear-day.svg,clear-night.svg
